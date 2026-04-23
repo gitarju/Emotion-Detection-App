@@ -2,7 +2,7 @@ import streamlit as st
 import cv2
 import numpy as np
 import tensorflow as tf
-from PIL import Image
+from PIL import Image, ImageOps
 import os
 import random
 import nltk
@@ -46,7 +46,7 @@ COLOR_MAP = {
 # --- Streamlit UI ---
 st.set_page_config(page_title="Emotion Detection AI", page_icon="🤖")
 
-st.title("Facial Emotion Detection & NLP AI 🚀")
+st.title("Facial Emotion Detection & NLP AI ")
 st.write("Upload a picture of a face, and the AI will predict the emotion and respond to you!")
 
 # --- Load Models (Cached for performance) ---
@@ -74,15 +74,16 @@ if model and face_classifier:
     if uploaded_file is not None:
         # Convert the file to an opencv image.
         image = Image.open(uploaded_file).convert('RGB')
+        image = ImageOps.exif_transpose(image)
         frame = np.array(image)
         frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
         
         gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        faces = face_classifier.detectMultiScale(gray_frame, scaleFactor=1.3, minNeighbors=5)
+        faces = face_classifier.detectMultiScale(gray_frame, scaleFactor=1.1, minNeighbors=4, minSize=(30, 30))
         
         if len(faces) == 0:
-            st.warning("No faces detected in the image.")
-            st.image(image, caption="Uploaded Image", use_column_width=True)
+            st.warning("No faces detected in the image. Try a different image or a clearer face!")
+            st.image(image, caption="Uploaded Image", use_container_width=True)
         else:
             # We process faces
             results = []
@@ -111,7 +112,7 @@ if model and face_classifier:
             
             # Convert back to RGB for displaying in Streamlit
             frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            st.image(frame_rgb, caption="Processed Image", use_column_width=True)
+            st.image(frame_rgb, caption="Processed Image", use_container_width=True)
             
             st.subheader("AI Analysis")
             for i, res in enumerate(results):
