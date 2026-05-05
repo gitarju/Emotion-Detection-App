@@ -1,4 +1,4 @@
-# Facial Emotion Detection  
+# Facial Emotion Detection AI 
 
 Hey there! Welcome to my deep learning mini-project. 
 
